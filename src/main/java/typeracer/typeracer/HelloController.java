@@ -13,6 +13,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,14 +31,17 @@ public class HelloController implements Initializable {
     private char[] znaky = predloha.toCharArray();
     private ArrayList<String> spravneZnaky = new ArrayList<>();
     private ArrayList<String> tempSpravneZnaky = new ArrayList<>();
+    private Client cl;
+
     @FXML
-    private void napsatText() {
+    private void napsatText() throws IOException {
 
         for(char znak:znaky) {
             Text temp = new Text(String.valueOf(znak));
             temp.setStyle("-fx-font-size: 20");
             text.getChildren().add(temp);
         }
+
     }
 
     private void upravitTextSpravne(){
