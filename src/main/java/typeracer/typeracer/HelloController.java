@@ -6,6 +6,8 @@ import javafx.beans.value.ObservableValue;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
 
 import javafx.scene.paint.Color;
@@ -24,24 +26,26 @@ public class HelloController implements Initializable {
 
     @FXML
     private TextFlow text;
-
+    @FXML
+    private ProgressBar pb1;
+    @FXML
+    private ProgressBar pb2;
+    private Client cl;
+    @FXML
+    private Label countdown;
     @FXML
     private TextArea textInput;
-    private final String predloha = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin mattis lacinia justo. Mauris suscipit, ligula sit amet pharetra semper, nibh ante cursus purus, vel sagittis velit mauris vel metus. Quisque porta. Integer malesuada. Curabitur ligula sapien, pulvinar a vestibulum quis, facilisis vel sapien. Nullam faucibus mi quis velit. Etiam neque.";
-    private char[] znaky = predloha.toCharArray();
-    private ArrayList<String> spravneZnaky = new ArrayList<>();
+    static String predloha;
+    public static char[] znaky;
+    public static int pocetSlov;
+    private static ArrayList<String> spravneZnaky = new ArrayList<>();
     private ArrayList<String> tempSpravneZnaky = new ArrayList<>();
-    private Client cl;
+    public static int spravnaSlova = 0;
 
     @FXML
-    private void napsatText() throws IOException {
-
-        for(char znak:znaky) {
-            Text temp = new Text(String.valueOf(znak));
-            temp.setStyle("-fx-font-size: 20");
-            text.getChildren().add(temp);
-        }
-
+    public static void initHelpVar() throws IOException {
+        znaky = predloha.toCharArray();
+        pocetSlov = predloha.split("\\s+").length;
     }
 
     private void upravitTextSpravne(){
@@ -94,6 +98,7 @@ public class HelloController implements Initializable {
     }
     private String getCastPredlohy(int delka){
         String vysledek = "";
+        System.out.println(delka);
         for (int i = 0; i < delka; i++) {
             vysledek = vysledek + znaky[i];
         }
@@ -108,19 +113,30 @@ public class HelloController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        try {
+            System.out.println(countdown);
+            cl = new Client(pb1, pb2, countdown, text);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         textInput.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observableValue, String s, String s2) {
 
                 if(s2.equals(getCastPredlohy(s2.length()))){
+                    //System.out.println(spravneZnaky);
+                    //System.out.println(tempSpravneZnaky);
                     if(s2.endsWith(" ")){
-                        System.out.println("konec slova");
+                        //System.out.println("konec slova");
+                        System.out.println(pocetSlov);
+                        spravnaSlova++;
                         odebratSlovo(s2.length());
                         Platform.runLater(() -> {
                             textInput.setText("");
                         });
                         spravneZnaky.addAll(tempSpravneZnaky);
                         spravneZnaky.add(" ");
+                        cl.sendMessage(spravnaSlova+"");
                     }
                     //System.out.println("ok");
                     tempSpravneZnaky.clear();
@@ -128,7 +144,7 @@ public class HelloController implements Initializable {
                         tempSpravneZnaky.add(znak+"");
                     }
                     textInput.getStyleClass().remove("spatne");
-                    System.out.println(textInput.getStyleClass());
+                    //System.out.println(textInput.getStyleClass());
                     upravitTextSpravne();
                 }
                 else{
@@ -146,11 +162,10 @@ public class HelloController implements Initializable {
                     //System.out.println("spatne");
                 }
 
-                System.out.println(spravneZnaky);
-                System.out.println(tempSpravneZnaky);
 
 
-                System.out.println();
+
+                //System.out.println();
             }
         });
     }

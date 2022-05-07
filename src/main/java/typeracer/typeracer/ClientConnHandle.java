@@ -1,7 +1,6 @@
 package typeracer.typeracer;
 
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ClientConnHandle extends Thread{
@@ -26,7 +25,7 @@ public class ClientConnHandle extends Thread{
         String message;
         try {
             while (!(message = is.readLine()).isEmpty()) {
-                Server.sendToAll(message);
+                Server.sendToAll(Thread.currentThread().getName() + ":" + message);
             }
         }catch (IOException e){
             System.out.println(e);
