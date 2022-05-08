@@ -3,7 +3,6 @@ package typeracer.typeracer;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextArea;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -13,44 +12,46 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 
 public class ClientListener extends Thread {
-    Socket ss;
-    ProgressBar pb1;
-    ProgressBar pb2;
-    Label countDown;
-    TextFlow text;
+    private Socket ss;
+    private ProgressBar pb1;
+    private ProgressBar pb2;
+    private Label countDown;
+    private TextFlow text;
+    private boolean konec;
     @Override
     public void run() {
 
-        BufferedReader in = null; // vytvoření BufferReaderu, se vstupním proudem se socketu klienta
+        //Vytvoření readeru
+        BufferedReader in = null; //
         try {
             in = new BufferedReader(new InputStreamReader(this.ss.getInputStream()));
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
-
-        // nekonečný while cyklus pro vypisování zpráv od serveru
-        while (true) {
-            String temp = null; // načtení zprávy od klienta do proměnné temp
+        konec = false;
+        //Příjem a zpracování zpráv
+        while (!konec) {
+            String temp = null;
             try {
                 temp = in.readLine();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
-            System.out.println(temp); // vypsání zprávy klienta z proměnné
-            if(temp.startsWith("start")){
+
+            if(temp.startsWith("start")){ //Zpráva o startu
                     String finalTemp = temp;
                     Platform.runLater(new Runnable() {
                         @Override public void run() {
                             countDown.setText(finalTemp.charAt(5)+"");
                         }
                     });
-            } else if(temp.startsWith("text")) {
+            } else if(temp.startsWith("text")) { //Zpráva o vygenerovaném textu
                 String finalTemp1 = temp;
                 Platform.runLater(new Runnable() {
                     @Override public void run() {
                         countDown.setVisible(false);
                         HelloController.predloha = finalTemp1.substring(5);
-                        try {
+                        try { //Vypsání textu
                             HelloController.initHelpVar();
                             for(char znak:HelloController.znaky) {
                                 Text temp = new Text(String.valueOf(znak));
@@ -62,7 +63,7 @@ public class ClientListener extends Thread {
                         }
                     }
                 });
-            } else if(!temp.startsWith("start") && !temp.startsWith("text")){
+            } else{ //Zprávy o skóre, měnění progress baru
                 String[] oneInfo = temp.split("#");
 
                 for (int i = 0; i < oneInfo.length; i++) {
@@ -76,6 +77,7 @@ public class ClientListener extends Thread {
                                             countDown.setText("Vyhrál jsi.");
                                         }
                                     });
+                                konec = true;
                             }
                         }
                         else{
@@ -87,11 +89,19 @@ public class ClientListener extends Thread {
                                         countDown.setText("Prohrál jsi.");
                                     }
                                 });
+                                konec = true;
                             }
                         }
                     }
             }
         }
+        try {
+            Client.sendMessage("konec");
+            ss.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     public ClientListener(Socket ss, ProgressBar pb1, ProgressBar pb2, Label coundown, TextFlow text) {

@@ -24,7 +24,7 @@ public class ClientConnHandle extends Thread{
 
         String message;
         try {
-            while (!(message = is.readLine()).isEmpty()) {
+            while (!(message = is.readLine()).equals("konec")) {
                 Server.sendToAll(Thread.currentThread().getName() + ":" + message);
             }
         }catch (IOException e){
@@ -33,6 +33,9 @@ public class ClientConnHandle extends Thread{
         try {
             os.close();
             is.close();
+            Server.pocetPripojeni=0;
+            Server.pocetOdeslanychSlov.clear();
+            Server.writers.clear();
             clientSocket.close();
         } catch (IOException e) {
             throw new RuntimeException(e);

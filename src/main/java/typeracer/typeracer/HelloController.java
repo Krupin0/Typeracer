@@ -14,7 +14,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -23,7 +22,6 @@ import java.util.ResourceBundle;
 
 
 public class HelloController implements Initializable {
-
     @FXML
     private TextFlow text;
     @FXML
@@ -35,12 +33,12 @@ public class HelloController implements Initializable {
     private Label countdown;
     @FXML
     private TextArea textInput;
-    static String predloha;
+    public static String predloha;
     public static char[] znaky;
     public static int pocetSlov;
-    private static ArrayList<String> spravneZnaky = new ArrayList<>();
-    private ArrayList<String> tempSpravneZnaky = new ArrayList<>();
     public static int spravnaSlova = 0;
+    private static ArrayList<String> spravneZnaky = new ArrayList<>();
+    private static ArrayList<String> tempSpravneZnaky = new ArrayList<>();
 
     @FXML
     public static void initHelpVar() throws IOException {
@@ -114,7 +112,6 @@ public class HelloController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
-            System.out.println(countdown);
             cl = new Client(pb1, pb2, countdown, text);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -123,12 +120,8 @@ public class HelloController implements Initializable {
             @Override
             public void changed(ObservableValue<? extends String> observableValue, String s, String s2) {
 
-                if(s2.equals(getCastPredlohy(s2.length()))){
-                    //System.out.println(spravneZnaky);
-                    //System.out.println(tempSpravneZnaky);
-                    if(s2.endsWith(" ")){
-                        //System.out.println("konec slova");
-                        System.out.println(pocetSlov);
+                if(s2.equals(getCastPredlohy(s2.length()))){ //Při napsání správného znaku
+                    if(s2.endsWith(" ")){       //Konec slova
                         spravnaSlova++;
                         odebratSlovo(s2.length());
                         Platform.runLater(() -> {
@@ -138,16 +131,14 @@ public class HelloController implements Initializable {
                         spravneZnaky.add(" ");
                         cl.sendMessage(spravnaSlova+"");
                     }
-                    //System.out.println("ok");
                     tempSpravneZnaky.clear();
                     for (char znak:s2.toCharArray()) {
                         tempSpravneZnaky.add(znak+"");
                     }
                     textInput.getStyleClass().remove("spatne");
-                    //System.out.println(textInput.getStyleClass());
                     upravitTextSpravne();
                 }
-                else{
+                else{//Při napsání špatného znaku
                     tempSpravneZnaky.clear();
                     int i =0;
                     while(s2.charAt(i) == getCastPredlohy(s2.length()).charAt(i)){
@@ -159,13 +150,7 @@ public class HelloController implements Initializable {
                         }
 
                     upravitTextSpatne(s2.length()-tempSpravneZnaky.size());
-                    //System.out.println("spatne");
                 }
-
-
-
-
-                //System.out.println();
             }
         });
     }
